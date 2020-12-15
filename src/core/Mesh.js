@@ -35,12 +35,13 @@ export class Mesh extends Transform {
         return this;
     }
 
-    draw({ camera } = {}) {
+    draw({ camera, overrideProgram } = {}) {
         this.beforeRenderCallbacks.forEach((f) => f && f({ mesh: this, camera }));
+        const usedProgram = overrideProgram || this.program;
         if (camera) {
             // Add empty matrix uniforms to program if unset
-            if (!this.program.uniforms.modelMatrix) {
-                Object.assign(this.program.uniforms, {
+            if (!usedProgram.uniforms.modelMatrix) {
+                Object.assign(usedProgram.uniforms, {
                     modelMatrix: { value: null },
                     viewMatrix: { value: null },
                     modelViewMatrix: { value: null },
@@ -51,20 +52,20 @@ export class Mesh extends Transform {
             }
 
             // Set the matrix uniforms
-            this.program.uniforms.projectionMatrix.value = camera.projectionMatrix;
-            this.program.uniforms.cameraPosition.value = camera.worldPosition;
-            this.program.uniforms.viewMatrix.value = camera.viewMatrix;
+            usedProgram.uniforms.projectionMatrix.value = camera.projectionMatrix;
+            usedProgram.uniforms.cameraPosition.value = camera.worldPosition;
+            usedProgram.uniforms.viewMatrix.value = camera.viewMatrix;
             this.modelViewMatrix.multiply(camera.viewMatrix, this.worldMatrix);
             this.normalMatrix.getNormalMatrix(this.modelViewMatrix);
-            this.program.uniforms.modelMatrix.value = this.worldMatrix;
-            this.program.uniforms.modelViewMatrix.value = this.modelViewMatrix;
-            this.program.uniforms.normalMatrix.value = this.normalMatrix;
+            usedProgram.uniforms.modelMatrix.value = this.worldMatrix;
+            usedProgram.uniforms.modelViewMatrix.value = this.modelViewMatrix;
+            usedProgram.uniforms.normalMatrix.value = this.normalMatrix;
         }
 
         // determine if faces need to be flipped - when mesh scaled negatively
-        let flipFaces = this.program.cullFace && this.worldMatrix.determinant() < 0;
-        this.program.use({ flipFaces });
-        this.geometry.draw({ mode: this.mode, program: this.program });
+        let flipFaces = usedProgram.cullFace && this.worldMatrix.determinant() < 0;
+        usedProgram.use({ flipFaces });
+        this.geometry.draw({ mode: this.mode, program: usedProgram });
         this.afterRenderCallbacks.forEach((f) => f && f({ mesh: this, camera }));
     }
 }

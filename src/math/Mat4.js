@@ -95,6 +95,11 @@ export class Mat4 extends Array {
         return this;
     }
 
+    fromPerspectiveFrustrum({ left, right, bottom, top, near, far }) {
+        Mat4Func.perspectiveFrustrum(this, left, right, top, bottom, near, far);
+        return this;
+    }
+
     fromPerspective({ fov, aspect, near, far } = {}) {
         Mat4Func.perspective(this, fov, aspect, near, far);
         return this;

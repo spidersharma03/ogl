@@ -304,7 +304,7 @@ export class Renderer {
         return renderList;
     }
 
-    render({ scene, camera, target = null, update = true, sort = true, frustumCull = true, clear }) {
+    render({ scene, camera, target = null, update = true, sort = true, frustumCull = true, clear, overrideProgram }) {
         if (target === null) {
             // make sure no render target bound so draws to canvas
             this.bindFramebuffer();
@@ -338,7 +338,7 @@ export class Renderer {
         const renderList = this.getRenderList({ scene, camera, frustumCull, sort });
 
         renderList.forEach((node) => {
-            node.draw({ camera });
+            node.draw({ camera, overrideProgram });
         });
     }
 }

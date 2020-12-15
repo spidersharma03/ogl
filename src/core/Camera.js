@@ -24,9 +24,46 @@ export class Camera extends Transform {
         else this.perspective();
     }
 
+    setViewOffset(x, y, width, height) {
+        if(!this.view) {
+            this.view = {
+                offsetX: x,
+                offsetY: y,
+                width: width,
+                height: height
+            }
+        }
+        this.view.offsetX = x;
+        this.view.offsetY = y;
+        this.view.width = width;
+        this.view.height = height;
+        if(this.type === 'perspective') {
+            this.perspective();
+        }
+    }
+
+    clearViewOffset() {
+        this.view = null;
+        if(this.type === 'perspective') {
+            this.perspective();
+        }
+    }
+
     perspective({ near = this.near, far = this.far, fov = this.fov, aspect = this.aspect } = {}) {
         Object.assign(this, { near, far, fov, aspect });
-        this.projectionMatrix.fromPerspective({ fov: fov * (Math.PI / 180), aspect, near, far });
+        let top = near * Math.tan( Math.PI/180 * 0.5 * fov ),
+        height = 2 * top,
+        width = aspect * height,
+        left = - 0.5 * width;
+        
+        if(this.view) {
+            left += this.view.offsetX * width / this.view.width;
+			top -= this.view.offsetY * height / this.view.height;
+        }
+        let right = left + width;
+        let bottom = top - height;
+
+        this.projectionMatrix.fromPerspectiveFrustrum({ left, right, top, bottom, near, far });
         this.type = 'perspective';
         return this;
     }
