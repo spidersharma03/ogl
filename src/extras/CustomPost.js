@@ -42,4 +42,12 @@ export class CustomPost extends Post {
         });
     }
 
+    resize({ width, height, dpr } = {}) {
+        this.fbo.read && this.fbo.read.dispose();
+        this.fbo.write && this.fbo.write.dispose();
+        super.resize({width: width, height: height, dr: dpr});
+        this.passes.forEach( (pass) => {
+            pass.resize({width, height, dpr});
+        })
+    }
 }
