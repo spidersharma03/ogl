@@ -106,4 +106,11 @@ export class RenderTarget {
 
         this.gl.bindFramebuffer(this.target, null);
     }
+
+    dispose() {
+        this.textures.forEach( (texture) => {
+            texture.dispose();
+        })
+        this.gl.deleteFramebuffer(this.buffer);
+    }
 }
