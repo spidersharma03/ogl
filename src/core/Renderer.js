@@ -251,9 +251,8 @@ export class Renderer {
         }
     }
 
-    getRenderList({ scene, camera, frustumCull, sort }) {
+    getRenderList({ scene, camera, frustumCull, sort, overrideProgram }) {
         let renderList = [];
-
         if (camera && frustumCull) camera.updateFrustum();
 
         // Get visible
@@ -335,7 +334,7 @@ export class Renderer {
         if (camera) camera.updateMatrixWorld();
 
         // Get render list - entails culling and sorting
-        const renderList = this.getRenderList({ scene, camera, frustumCull, sort });
+        const renderList = this.getRenderList({ scene, camera, frustumCull, sort, overrideProgram });
 
         renderList.forEach((node) => {
             node.draw({ camera, overrideProgram });
