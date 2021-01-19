@@ -217,5 +217,6 @@ export class Texture {
 
     dispose() {
         this.gl.deleteTexture(this.texture);
+        this.texture = null;
     }
 }
