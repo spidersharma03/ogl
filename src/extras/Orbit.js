@@ -156,7 +156,7 @@ export function Orbit(
         sphericalDelta.theta -= angle;
     }
 
-    function handleMoveRotate(x, y) {
+    let handleMoveRotate = (x, y) => {
         tempVec2a.set(x, y);
         tempVec2b.sub(tempVec2a, rotateStart).multiply(this.rotateSpeed);
         let el = element === document ? document.body : element;
@@ -176,7 +176,7 @@ export function Orbit(
         dollyStart.copy(tempVec2a);
     }
 
-    function handleMovePan(x, y) {
+    let handleMovePan = (x, y) => {
         tempVec2a.set(x, y);
         tempVec2b.sub(tempVec2a, panStart).multiply(this.panSpeed);
         pan(tempVec2b.x, tempVec2b.y);
