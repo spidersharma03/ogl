@@ -37,7 +37,8 @@ export function Orbit(
 ) {
     this.enabled = enabled;
     this.target = target;
-
+    this.rotateSpeed = rotateSpeed;
+    this.panSpeed = panSpeed;
     // Catch attempts to disable - set to 1 so has no effect
     ease = ease || 1;
     inertia = inertia || 0;
@@ -157,7 +158,7 @@ export function Orbit(
 
     function handleMoveRotate(x, y) {
         tempVec2a.set(x, y);
-        tempVec2b.sub(tempVec2a, rotateStart).multiply(rotateSpeed);
+        tempVec2b.sub(tempVec2a, rotateStart).multiply(this.rotateSpeed);
         let el = element === document ? document.body : element;
         sphericalDelta.theta -= (2 * Math.PI * tempVec2b.x) / el.clientHeight;
         sphericalDelta.phi -= (2 * Math.PI * tempVec2b.y) / el.clientHeight;
@@ -177,7 +178,7 @@ export function Orbit(
 
     function handleMovePan(x, y) {
         tempVec2a.set(x, y);
-        tempVec2b.sub(tempVec2a, panStart).multiply(panSpeed);
+        tempVec2b.sub(tempVec2a, panStart).multiply(this.panSpeed);
         pan(tempVec2b.x, tempVec2b.y);
         panStart.copy(tempVec2a);
     }
