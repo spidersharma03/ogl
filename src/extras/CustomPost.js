@@ -20,7 +20,7 @@ export class RenderPass extends Pass {
     }
     
     render(renderer, writeBuffer, readBuffer) {
-        renderer.render(this.scene, this.camera, readBuffer);
+        renderer.render({scene: this.scene, camera: this.camera, target: readBuffer});
     }
 }
 
