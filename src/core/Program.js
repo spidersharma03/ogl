@@ -155,6 +155,9 @@ export class Program {
 
         // Set only the active uniforms found in the shader
         this.uniformLocations.forEach((location, activeUniform) => {
+            // if(this.id == 1)
+                // console.log("log msg", this.program, this.gl.renderer.currentProgram, this.id);
+
             let name = activeUniform.uniformName;
 
             // get supplied uniform
