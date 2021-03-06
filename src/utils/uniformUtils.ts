@@ -1,14 +1,14 @@
 /**
  * Uniform Utilities,
  */
-import {TUniforms} from "../oglextra/pbrmaterial";
+import {TUniforms} from "../materials/pbrmaterial";
 
 export function cloneUniforms( src: TUniforms ) {
-    const dst = {};
-    for ( var u in src ) {
+    const dst: any = {};
+    for (let u in src ) {
         dst[ u ] = {};
-        for ( var p in src[ u ] ) {
-            var property = src[ u ][ p ];
+        for (let p in src[ u ] ) {
+            const property = (src as any)[u][p];
             if ( property && (typeof property.clone === 'function' ) ) {
                 dst[ u ][ p ] = property.clone();
             } else if ( Array.isArray( property ) ) {
@@ -21,11 +21,11 @@ export function cloneUniforms( src: TUniforms ) {
     return dst;
 }
 
-export function mergeUniforms( uniforms ) {
-    var merged = {};
-    for ( var u = 0; u < uniforms.length; u ++ ) {
-        var tmp = cloneUniforms( uniforms[ u ] );
-        for ( var p in tmp ) {
+export function mergeUniforms( uniforms: TUniforms ) {
+    const merged: any = {};
+    for (let u = 0; u < uniforms.length; u ++ ) {
+        const tmp = cloneUniforms(uniforms[u]);
+        for (let p in tmp ) {
             merged[ p ] = tmp[ p ];
         }
     }

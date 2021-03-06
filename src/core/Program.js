@@ -40,6 +40,7 @@ export class Program {
         this.depthFunc = depthFunc;
         this.blendFunc = {};
         this.blendEquation = {};
+        this.uniformLocations = new Map();
 
         // set default blendFunc if transparent flagged
         if (this.transparent && !this.blendFunc.src) {
@@ -77,7 +78,6 @@ export class Program {
         gl.deleteShader(fragmentShader);
 
         // Get active uniform locations
-        this.uniformLocations = new Map();
         let numUniforms = gl.getProgramParameter(this.program, gl.ACTIVE_UNIFORMS);
         for (let uIndex = 0; uIndex < numUniforms; uIndex++) {
             let uniform = gl.getActiveUniform(this.program, uIndex);
@@ -155,9 +155,6 @@ export class Program {
 
         // Set only the active uniforms found in the shader
         this.uniformLocations.forEach((location, activeUniform) => {
-            // if(this.id == 1)
-                // console.log("log msg", this.program, this.gl.renderer.currentProgram, this.id);
-
             let name = activeUniform.uniformName;
 
             // get supplied uniform

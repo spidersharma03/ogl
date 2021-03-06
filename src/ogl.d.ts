@@ -2003,7 +2003,7 @@ export type OrbitOptions = {
 }
 export class Orbit {
     target: Vec3;
-    forcePosition();
+    forcePosition(): void;
     constructor(
         object: Transform & {
             fov: number
@@ -2031,7 +2031,7 @@ export class Orbit {
         }?: Partial<OrbitOptions>,
     )
 
-    update()
+    update(): void;
 }
 // #endregion
 
@@ -2154,10 +2154,10 @@ export class Post {
 }
 // // #endregion
 export class Pass{
-    public enabled:boolean ;
-    public renderToScreen;
-    public needsSwap:boolean ;
-    render(renderer: Renderer, writeBuffer: RenderTarget, readBuffer: RenderTarget);
+    public enabled:boolean;
+    public renderToScreen: boolean;
+    public needsSwap:boolean;
+    render(renderer: Renderer, writeBuffer: RenderTarget, readBuffer: RenderTarget): void;
 }
 export class CustomPost extends Post {}
 

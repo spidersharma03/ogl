@@ -12,7 +12,7 @@ export class PBRMaterial {
     protected static readonly defaultFragment: string = pbrfrag;
 
     private gl_: any;
-    private program_?: Program;
+    private program_: Program;
     private uniforms_: any;
     private static lutTextureMap: Map<string, Texture> = new Map<string, Texture>();
     private envMapSpecular_?: Texture;
@@ -26,50 +26,49 @@ export class PBRMaterial {
     constructor(gl: any, pbrparams?: PBRMaterialParams, defines? : string, uniforms?: TUniforms, shaders?: {frag?: string, vert?: string}) {
         this.gl_ = gl;
 
-        if(!PBRMaterial.lutTextureMap[gl.canvas.id]) {
-            PBRMaterial.lutTextureMap[gl.canvas.id] = TextureLoader.load(gl, {
+        if(!PBRMaterial.lutTextureMap.get(gl.canvas.id)) {
+            PBRMaterial.lutTextureMap.set(gl.canvas.id, TextureLoader.load(gl, {
               src: 'https://assets.jewlr.com/j3d/lut.png',
-            });
+            }));
         }
 
         let pbrVert = shaders?.vert ?? pbrvert;
         let pbrFrag = shaders?.frag ?? pbrfrag;
-        if(pbrparams) {
-            this.color_ = pbrparams.baseColorFactor !== undefined ? new Vec4().copy(pbrparams.baseColorFactor) : new Vec4(1, 1, 1, 1);
-            this.roughness = pbrparams.roughness !== undefined ? pbrparams.roughness : 0;
-            this.metalness = pbrparams.metalness !== undefined ? pbrparams.metalness : 0;
-            this.envMapIntensity = pbrparams.envMapIntensity !== undefined ? pbrparams.envMapIntensity : 1;
 
-            this.uniforms_ = {
-                uBaseColorFactor: { value: pbrparams.baseColorFactor || new Vec4(1, 1, 1, 1) },
-                tBaseColor: { value: pbrparams.baseColorTexture ? pbrparams.baseColorTexture.texture : null },
+        this.color_ = pbrparams?.baseColorFactor !== undefined ? new Vec4().copy(pbrparams.baseColorFactor) : new Vec4(1, 1, 1, 1);
+        this.roughness = pbrparams?.roughness !== undefined ? pbrparams.roughness : 0;
+        this.metalness = pbrparams?.metalness !== undefined ? pbrparams.metalness : 0;
+        this.envMapIntensity = pbrparams?.envMapIntensity !== undefined ? pbrparams?.envMapIntensity : 1;
 
-                uRoughness: { value: pbrparams.roughness !== undefined ? pbrparams.roughness : 1 },
-                uMetallic: { value: pbrparams.metalness !== undefined ? pbrparams.metalness : 1 },
+        this.uniforms_ = {
+            uBaseColorFactor: { value: new Vec4().copy(this.color_) },
+            tBaseColor: { value: pbrparams?.baseColorTexture ? pbrparams?.baseColorTexture.texture : null },
 
-                tNormal: { value: { texture: null} },
-                uNormalScale: { value: pbrparams.normalScale || 1 },
+            uRoughness: { value: pbrparams?.roughness !== undefined ? pbrparams?.roughness : 1 },
+            uMetallic: { value: pbrparams?.metalness !== undefined ? pbrparams?.metalness : 1 },
 
-                tOcclusion: { value: { texture: null} },
+            tNormal: { value: { texture: null} },
+            uNormalScale: { value: pbrparams?.normalScale || 1 },
 
-                tEmissive: { value: { texture: null} },
-                uEmissive: { value: pbrparams.emissive || [0, 0, 0] },
+            tOcclusion: { value: { texture: null} },
 
-                tLUT: { value: PBRMaterial.lutTextureMap[gl.canvas.id] },
-                tEnvDiffuse: { value: { texture: null} },
-                tEnvSpecular: { value: { texture: null} },
-                uEnvDiffuse: { value: 0.5 },
-                uEnvSpecular: { value: 0.5 },
-                uEnvMapIntensity: { value: 1 },
+            tEmissive: { value: { texture: null} },
+            uEmissive: { value: pbrparams?.emissive || [0, 0, 0] },
 
-                uAlpha: { value: pbrparams.alpha },
-                uAlphaCutoff: { value: pbrparams.alphaCutoff },
+            tLUT: { value: PBRMaterial.lutTextureMap.get(gl.canvas.id) },
+            tEnvDiffuse: { value: { texture: null} },
+            tEnvSpecular: { value: { texture: null} },
+            uEnvDiffuse: { value: 0.5 },
+            uEnvSpecular: { value: 0.5 },
+            uEnvMapIntensity: { value: 1 },
 
-                ...(uniforms??{}),
-            }
-            defines = defines ? defines : ``;
-            this.program_ = this.createProgram_(pbrparams, defines, pbrVert, pbrFrag);
+            uAlpha: { value: pbrparams?.alpha },
+            uAlphaCutoff: { value: pbrparams?.alphaCutoff },
+
+            ...(uniforms??{}),
         }
+        defines = defines ? defines : ``;
+        this.program_ = this.createProgram_(defines, pbrVert, pbrFrag);
     }
 
     get isPBRMaterial() {
@@ -147,8 +146,8 @@ export class PBRMaterial {
 
     public serialize() : PBRMaterialParams {
         return {
-            baseColor: [1, 1, 1],
-            baseColorFactor: [this.color_.x, this.color_.y, this.color_.z],
+            baseColor: new Vec4(1, 1, 1, 1),
+            baseColorFactor: this.color_.copy(new Vec4()),
             roughness: this.roughness_,
             metalness: this.metalness_,
             envMapIntensity: this.envMapIntensity
@@ -162,6 +161,7 @@ export class PBRMaterial {
                 this.color_.x = params.baseColorFactor[0] !== undefined ? params.baseColorFactor[0] : params.baseColorFactor.x;
                 this.color_.y = params.baseColorFactor[1] !== undefined ? params.baseColorFactor[1] : params.baseColorFactor.y;
                 this.color_.z = params.baseColorFactor[2] !== undefined ? params.baseColorFactor[2] : params.baseColorFactor.z;
+                this.color_.w = params.baseColorFactor[3] !== undefined ? params.baseColorFactor[3] : params.baseColorFactor.w;
             }
             if(params.emissive) {
                 this.emissive.x = params.emissive.x;
@@ -181,7 +181,7 @@ export class PBRMaterial {
 
     }
 
-    private createProgram_(pbrparams: PBRMaterialParams, defines: string, vertex?: string, fragment?: string) {
+    private createProgram_(defines: string, vertex?: string, fragment?: string) {
         vertex = vertex ?? PBRMaterial.defaultVertex
         fragment = fragment ?? PBRMaterial.defaultFragment;
 
@@ -202,8 +202,8 @@ export class PBRMaterial {
 }
 
 export interface PBRMaterialParams {
-    baseColor?: Vec3,
-    baseColorFactor?: Vec3,
+    baseColor?: Vec4,
+    baseColorFactor?: Vec4,
     baseColorTexture?: Texture,
     tRM?: Texture,
     roughness?: number,

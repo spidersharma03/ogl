@@ -16,20 +16,21 @@ function getPBRParams(gltfMaterial: any) {
     return pbrparams;
 }
 
-function updateUniforms_(material: PBRMaterial) {
-    if(material instanceof PBRMaterial) {
-        material.program.uniforms['uBaseColorFactor'].value.copy(material.color);
-        material.program.uniforms['uRoughness'].value = material.roughness;
-        material.program.uniforms['uMetallic'].value = material.metalness;
-        material.program.uniforms['uEnvMapIntensity'].value = material.envMapIntensity;
-        material.program.uniforms['tEnvDiffuse'].value = material.envMapDiffuse;
-        material.program.uniforms['tEnvSpecular'].value = material.envMapSpecular;
+function updateUniforms_(material?: PBRMaterial) {
+    if(material && material instanceof PBRMaterial) {
+        let program = material.program;
+        program.uniforms['uBaseColorFactor'].value.copy(material.color);
+        program.uniforms['uRoughness'].value = material.roughness;
+        program.uniforms['uMetallic'].value = material.metalness;
+        program.uniforms['uEnvMapIntensity'].value = material.envMapIntensity;
+        program.uniforms['tEnvDiffuse'].value = material.envMapDiffuse;
+        program.uniforms['tEnvSpecular'].value = material.envMapSpecular;
     }
 }
 
 export function assignPBRMaterials(gl: OGLRenderingContext, root: Transform, materialCtor?: (gl: OGLRenderingContext, p: PBRMaterialParams, defines: string)=>PBRMaterial) {
     root.traverse((node) => {
-        if (node instanceof Mesh && node.program && !node.isDiamondMaterial && node.program.gltfMaterial) { //todo: isDiamondMaterial on node??
+        if (node instanceof Mesh && node.program && !(node as any).isDiamondMaterial && node.program.gltfMaterial) { //todo: isDiamondMaterial on node??
             let defines = `${node.geometry.attributes.uv ? `#define UV\n` : ``}`;
             let material = materialCtor ?
                 materialCtor(gl, getPBRParams(node.program.gltfMaterial), defines) :

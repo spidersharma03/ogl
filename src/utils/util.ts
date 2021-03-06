@@ -1,4 +1,4 @@
-import {Renderer, Transform, Vec3} from "../ogl";
+import {Mesh, Renderer, Transform, Vec3} from "../ogl";
 
 
 export function getSnapshotData(renderer: Renderer, mimeType?: string): string {
@@ -31,7 +31,7 @@ export function getPointerPosition(position: {x: number, y: number}, canvas: HTM
 export function getAllMeshes(root: Transform) {
     let meshes : any = [];
     root.traverse((group) => {
-        if(group.geometry) {
+        if((group as Mesh)?.geometry) {
             if (!group.parent) return; // Skip unattached
             meshes.push(group);
         }
@@ -49,17 +49,18 @@ export function computeBoundingBox(root: Transform) {
     const boundsScale = new Vec3();
     
     root.traverse((group) => {
-        if(group.geometry) {
+        let geometry = (group as Mesh)?.geometry;
+        if(geometry) {
             if (!group.parent) return; // Skip unattached
 
-            if (!group.geometry.bounds) group.geometry.computeBoundingSphere();
+            if (!geometry.bounds) geometry.computeBoundingSphere();
 
-            boundsCenter.copy(group.geometry.bounds.center).applyMatrix4(group.worldMatrix);
+            boundsCenter.copy(geometry.bounds.center).applyMatrix4(group.worldMatrix);
 
             // Get max world scale axis
             group.worldMatrix.getScaling(boundsScale);
             const radiusScale = Math.max(Math.max(boundsScale[0], boundsScale[1]), boundsScale[2]);
-            const radius = group.geometry.bounds.radius * radiusScale;
+            const radius = geometry.bounds.radius * radiusScale;
 
             boundsMin.set(-radius).add(boundsCenter);
             boundsMax.set(+radius).add(boundsCenter);
@@ -88,5 +89,5 @@ export function traverse(root: Transform, callBack: any, filter?: any) {
 }
 
 export function traverseMeshes(root: Transform, callBack: any) {
-    traverse(root, callBack, (group: Transform)=> {return group.geometry});
+    traverse(root, callBack, (group: Transform)=> {return (group as Mesh).geometry != null});
 }

@@ -69,7 +69,7 @@ With tree-shaking applied in a build step, one can expect the final size to be m
 If installed amongst your project files, importing can be done from one single entry point.
 
 ```js
-import { ... } from './path/to/src/index.mjs';
+import { ... } from './path/to/src/ogl.js';
 ```
 
 Else if using a bundler with node modules, then import directly from the installed node module.

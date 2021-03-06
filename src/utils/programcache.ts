@@ -1,5 +1,4 @@
-// @ts-ignore
-import {Program} from 'ogl'
+import {Program} from '../ogl'
 
 export class ProgramCache {
 
