@@ -36,16 +36,20 @@ export class TextureLoader {
             premultiplyAlpha = false,
             unpackAlignment = 4,
             flipY = true,
+            mimeType = 'none'
         } = {}
     ) {
         const support = this.getSupportedExtensions(gl);
         let ext = 'none';
-
+        
         // If src is string, determine which format from the extension
         if (typeof src === 'string') {
             ext = src.split('.').pop().split('?')[0].toLowerCase();
         }
-
+        if(mimeType === 'png' || mimeType === 'jpg') {
+            ext = mimeType;
+        }
+        
         // If src is object, use supported extensions and provided list to choose best option
         // Get first supported match, so put in order of preference
         if (typeof src === 'object') {
